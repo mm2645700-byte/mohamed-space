@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Moaz Space - Official</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --insta: #E1306C;
+            --tiktok: #00f2ff;
+            --whatsapp: #25D366;
+            --bg-color: #050505;
+        }
+
+        body {
+            margin: 0;
+            background: var(--bg-color);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            font-family: 'Segoe UI', sans-serif;
+            perspective: 1000px;
+        }
+
+        /* كود خلفية الماتريكس */
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: -1;
+            opacity: 0.3;
+        }
+
+        .glass-card {
+            width: 300px;
+            padding: 35px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(0, 242, 255, 0.3);
+            border-radius: 25px;
+            backdrop-filter: blur(15px);
+            text-align: center;
+            color: white;
+            transform-style: preserve-3d;
+            transition: transform 0.1s;
+            box-shadow: 0 0 30px rgba(0, 242, 255, 0.1);
+        }
+
+        .profile-img {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            border: 2px solid var(--tiktok);
+            margin-bottom: 15px;
+            box-shadow: 0 0 20px var(--tiktok);
+            transform: translateZ(50px);
+        }
+
+        h1 { font-size: 1.6rem; margin-bottom: 25px; letter-spacing: 3px; transform: translateZ(40px); }
+
+        .social-links {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .link-btn {
+            text-decoration: none;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 12px;
+            border-radius: 12px;
+            font-weight: bold;
+            transition: 0.3s;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transform: translateZ(30px);
+        }
+
+        .insta:hover { background: var(--insta); box-shadow: 0 0 20px var(--insta); }
+        .tiktok:hover { background: var(--tiktok); color: #000; box-shadow: 0 0 20px var(--tiktok); }
+        .whatsapp:hover { background: var(--whatsapp); box-shadow: 0 0 20px var(--whatsapp); }
+
+    </style>
+</head>
+<body>
+
+<canvas id="matrix"></canvas>
+
+<div class="glass-card" id="card">
+    <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Moaz" class="profile-img">
+    <h1>MOHAMED SPACE</h1>
+    
+    <div class="social-links">
+        <a href="https://www.instagram.com/m._dahmash" target="_blank" class="link-btn insta" onclick="playClick()">
+            <i class="fab fa-instagram"></i> INSTAGRAM
+        </a>
+        <a href="https://www.tiktok.com/@_mo.dahmash_" target="_blank" class="link-btn tiktok" onclick="playClick()">
+            <i class="fab fa-tiktok"></i> TIKTOK
+        </a>
+        <a href="https://wa.me/201113680767" target="_blank" class="link-btn whatsapp" onclick="playClick()">
+            <i class="fab fa-whatsapp"></i> WHATSAPP
+        </a>
+    </div>
+</div>
+
+<script>
+    // --- 1. تأثير الماتريكس ---
+    const canvas = document.getElementById('matrix');
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    const letters = "01010101MOAZCYBER";
+    const fontSize = 16;
+    const columns = canvas.width / fontSize;
+    const drops = Array(Math.floor(columns)).fill(1);
+
+    function drawMatrix() {
+        ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = "#00f2ff";
+        ctx.font = fontSize + "px arial";
+        for (let i = 0; i < drops.length; i++) {
+            const text = letters.charAt(Math.floor(Math.random() * letters.length));
+            ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+            if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0;
+            drops[i]++;
+        }
+    }
+    setInterval(drawMatrix, 33);
+
+    // --- 2. حركة الكارت (PC + Mobile) ---
+    const card = document.getElementById('card');
+    document.addEventListener('mousemove', (e) => {
+        let x = (window.innerWidth / 2 - e.pageX) / 15;
+        let y = (window.innerHeight / 2 - e.pageY) / 15;
+        card.style.transform = `rotateY(${x}deg) rotateX(${-y}deg)`;
+    });
+
+    window.addEventListener('deviceorientation', (e) => {
+        let x = e.gamma * 0.5;
+        let y = (e.beta - 45) * 0.5;
+        card.style.transform = `rotateY(${x}deg) rotateX(${y}deg)`;
+    });
+
+    // --- 3. صوت الـ Click (إلكتروني بسيط) ---
+    function playClick() {
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const oscillator = audioCtx.createOscillator();
+        const gainNode = audioCtx.createGain();
+        oscillator.type = 'square';
+        oscillator.frequency.setValueAtTime(150, audioCtx.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.1);
+        oscillator.connect(gainNode);
+        gainNode.connect(audioCtx.destination);
+        oscillator.start();
+        oscillator.stop(audioCtx.currentTime + 0.1);
+    }
+</script>
+
+</body>
+</html>
